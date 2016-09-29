@@ -81,6 +81,14 @@ MACHINE ??= "artik10"
 
 - Build kernel snap
 
+Before generate kernel snap, we need run "snapcraft login" to create credentials for snapcraft.
+
+```
+$ snapcraft login
+```
+
+Now run bitbake to generate kernel snap
+
 ```
 $ bitbake linux-yocto-artik -c kernel_snap
 (Wait long time for task finish)
