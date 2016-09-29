@@ -1,0 +1,74 @@
+From f5078442a47da57c156e6abf06ce1527fbb35cc1 Mon Sep 17 00:00:00 2001
+From: Liming Wang <liming.wang@canonical.com>
+Date: Mon, 23 May 2016 11:54:47 +0800
+Subject: [PATCH 31/33] snappy/artik: remove kvfree from apparmor
+
+commit cdaffdcb nick kvfree() from apparmor
+
+Above commit introduces kvfree in include/linux/mm.h, which conflicts with
+apparmor.h, so remove the code from apparmor.h
+
+Signed-off-by: Liming Wang <liming.wang@canonical.com>
+---
+ security/apparmor/include/apparmor.h |  1 -
+ security/apparmor/lib.c              | 32 --------------------------------
+ 2 files changed, 33 deletions(-)
+
+diff --git a/security/apparmor/include/apparmor.h b/security/apparmor/include/apparmor.h
+index 812f0c6..a59a330 100644
+--- a/security/apparmor/include/apparmor.h
++++ b/security/apparmor/include/apparmor.h
+@@ -89,7 +89,6 @@ char *aa_split_fqname(char *args, char **ns_name);
+ char *aa_splitn_fqname(char *fqname, size_t n, char **ns_name, size_t *ns_len);
+ void aa_info_message(const char *str);
+ void *__aa_kvmalloc(size_t size, gfp_t flags);
+-void kvfree(void *buffer);
+ 
+ static inline void *kvmalloc(size_t size)
+ {
+diff --git a/security/apparmor/lib.c b/security/apparmor/lib.c
+index b842caf..f4033f7 100644
+--- a/security/apparmor/lib.c
++++ b/security/apparmor/lib.c
+@@ -155,38 +155,6 @@ void *__aa_kvmalloc(size_t size, gfp_t flags)
+ 	return buffer;
+ }
+ 
+-/**
+- * do_vfree - workqueue routine for freeing vmalloced memory
+- * @work: data to be freed
+- *
+- * The work_struct is overlaid to the data being freed, as at the point
+- * the work is scheduled the data is no longer valid, be its freeing
+- * needs to be delayed until safe.
+- */
+-static void do_vfree(struct work_struct *work)
+-{
+-	vfree(work);
+-}
+-
+-/**
+- * kvfree - free an allocation do by kvmalloc
+- * @buffer: buffer to free (MAYBE_NULL)
+- *
+- * Free a buffer allocated by kvmalloc
+- */
+-void kvfree(void *buffer)
+-{
+-	if (is_vmalloc_addr(buffer)) {
+-		/* Data is no longer valid so just use the allocated space
+-		 * as the work_struct
+-		 */
+-		struct work_struct *work = (struct work_struct *) buffer;
+-		INIT_WORK(work, do_vfree);
+-		schedule_work(work);
+-	} else
+-		kfree(buffer);
+-}
+-
+ __counted char *aa_str_alloc(int size, gfp_t gfp)
+ {
+ 	struct counted_str *str;
+-- 
+2.7.4
+

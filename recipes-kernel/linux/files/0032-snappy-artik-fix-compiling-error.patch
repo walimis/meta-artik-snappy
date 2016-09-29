@@ -1,0 +1,62 @@
+From c568e8d71d6eb72f7df719b910a6b052bc6fb029 Mon Sep 17 00:00:00 2001
+From: Liming Wang <liming.wang@canonical.com>
+Date: Mon, 23 May 2016 12:16:48 +0800
+Subject: [PATCH 32/33] snappy/artik: fix compiling error
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+net/netfilter/xt_quota2.c: In function ‘q2_get_counter’:
+net/netfilter/xt_quota2.c:234:19: error: incompatible type for argument 2 of ‘proc_set_user’
+  proc_set_user(p, quota_list_uid, quota_list_gid);
+                   ^
+In file included from net/netfilter/xt_quota2.c:16:0:
+include/linux/proc_fs.h:38:13: note: expected ‘kuid_t {aka struct <anonymous>}’ but argument is of type ‘unsigned int’
+ extern void proc_set_user(struct proc_dir_entry *, kuid_t, kgid_t);
+             ^
+net/netfilter/xt_quota2.c:234:35: error: incompatible type for argument 3 of ‘proc_set_user’
+  proc_set_user(p, quota_list_uid, quota_list_gid);
+                                   ^
+In file included from net/netfilter/xt_quota2.c:16:0:
+include/linux/proc_fs.h:38:13: note: expected ‘kgid_t {aka struct <anonymous>}’ but argument is of type ‘unsigned int’
+ extern void proc_set_user(struct proc_dir_entry *, kuid_t, kgid_t);
+             ^
+scripts/Makefile.build:308: recipe for target 'net/netfilter/xt_quota2.o' failed
+make[2]: *** [net/netfilter/xt_quota2.o] Error 1
+scripts/Makefile.build:455: recipe for target 'net/netfilter' failed
+make[1]: *** [net/netfilter] Error 2
+make[1]: *** Waiting for unfinished jobs....
+
+Signed-off-by: Liming Wang <liming.wang@canonical.com>
+---
+ net/netfilter/xt_quota2.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/net/netfilter/xt_quota2.c b/net/netfilter/xt_quota2.c
+index 44ebdcc..012c167 100644
+--- a/net/netfilter/xt_quota2.c
++++ b/net/netfilter/xt_quota2.c
+@@ -191,6 +191,11 @@ q2_get_counter(const struct xt_quota_mtinfo2 *q)
+ 	struct proc_dir_entry *p;
+ 	struct xt_quota_counter *e = NULL;
+ 	struct xt_quota_counter *new_e;
++	kuid_t kquota_list_uid;
++	kgid_t kquota_list_gid;
++
++	kquota_list_uid.val = quota_list_uid;
++	kquota_list_gid.val = quota_list_gid;
+ 
+ 	if (*q->name == '\0')
+ 		return q2_new_counter(q, true);
+@@ -231,7 +236,7 @@ q2_get_counter(const struct xt_quota_mtinfo2 *q)
+ 		spin_unlock_bh(&counter_list_lock);
+ 		goto out;
+ 	}
+-	proc_set_user(p, quota_list_uid, quota_list_gid);
++	proc_set_user(p, kquota_list_uid, kquota_list_gid);
+ 	return e;
+ 
+  out:
+-- 
+2.7.4
+
