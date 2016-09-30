@@ -1,7 +1,7 @@
 From a9a04bdfa6cead684a558d6eac999c0145e81174 Mon Sep 17 00:00:00 2001
 From: Liming Wang <liming.wang@canonical.com>
 Date: Fri, 12 Aug 2016 11:11:44 +0800
-Subject: [PATCH 33/33] artik/artik10: add snapcraft and wifi firmware blob
+Subject: [PATCH] artik/artik10: add snapcraft and wifi firmware blob
 
 Signed-off-by: Liming Wang <liming.wang@canonical.com>
 ---

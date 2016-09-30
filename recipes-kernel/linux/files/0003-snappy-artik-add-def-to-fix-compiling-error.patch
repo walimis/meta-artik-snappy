@@ -1,0 +1,40 @@
+From 32bfcfd7dbafa24af1d32b80f1381c66e6258ebc Mon Sep 17 00:00:00 2001
+From: Liming Wang <liming.wang@canonical.com>
+Date: Fri, 30 Sep 2016 07:03:57 +0000
+Subject: [PATCH] snappy/artik: add def to fix compiling error
+
+net/netfilter/xt_quota2.c: In function 'q2_get_counter':
+net/netfilter/xt_quota2.c:197:17: error: request for member 'val' in something not a structure or union
+|   kquota_list_uid.val = quota_list_uid;
+|                  ^
+net/netfilter/xt_quota2.c:198:17: error: request for member 'val' in something not a structure or union
+|   kquota_list_gid.val = quota_list_gid;
+|                  ^
+| make[4]: *** [net/netfilter/xt_quota2.o] Error 1
+
+Signed-off-by: Liming Wang <liming.wang@canonical.com>
+---
+ net/netfilter/xt_quota2.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/net/netfilter/xt_quota2.c b/net/netfilter/xt_quota2.c
+index 012c167..7155031 100644
+--- a/net/netfilter/xt_quota2.c
++++ b/net/netfilter/xt_quota2.c
+@@ -194,8 +194,13 @@ q2_get_counter(const struct xt_quota_mtinfo2 *q)
+ 	kuid_t kquota_list_uid;
+ 	kgid_t kquota_list_gid;
+ 
++#ifdef CONFIG_UIDGID_STRICT_TYPE_CHECKS
+ 	kquota_list_uid.val = quota_list_uid;
+ 	kquota_list_gid.val = quota_list_gid;
++#else
++	kquota_list_uid = quota_list_uid;
++	kquota_list_gid = quota_list_gid;
++#endif
+ 
+ 	if (*q->name == '\0')
+ 		return q2_new_counter(q, true);
+-- 
+2.7.4
+

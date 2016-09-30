@@ -1,7 +1,7 @@
 From c568e8d71d6eb72f7df719b910a6b052bc6fb029 Mon Sep 17 00:00:00 2001
 From: Liming Wang <liming.wang@canonical.com>
 Date: Mon, 23 May 2016 12:16:48 +0800
-Subject: [PATCH 32/33] snappy/artik: fix compiling error
+Subject: [PATCH] snappy/artik: fix compiling error
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
